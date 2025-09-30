@@ -1,0 +1,106 @@
+safeHead :: [a] -> Maybe a
+safeHead []     = Nothing
+safeHead (x:_)  = Just x
+
+safeDiv :: (Eq a, Fractional a) => a -> a -> Maybe a
+safeDiv _ 0 = Nothing
+safeDiv x y = Just (x / y)
+
+mkMultiplier :: Num a => a -> (a -> a)
+mkMultiplier n = (\x -> n * x)
+
+applyTwice :: (a -> a) -> a -> a
+applyTwice f x = f (f x)
+
+myMap :: (a -> b) -> [a] -> [b]
+myMap _ []     = []              
+myMap f (x:xs) = f x : myMap f xs  
+
+
+myFilter :: (a -> Bool) -> [a] -> [a]
+myFilter _ [] = []  
+myFilter p (x:xs)
+    | p x       = x : myFilter p xs  
+    | otherwise = myFilter p xs      
+
+
+avg :: (Fractional a) => [a] -> Maybe a
+avg [] = Nothing
+avg xs = Just (sum xs / fromIntegral (length xs))
+
+processList :: [Int] -> [Int]
+processList = take 3 . map (^2) . filter odd
+
+
+findIndex :: Eq a => a -> [a] -> Maybe Int
+findIndex x xs = go 0 xs
+  where
+    go _ [] = Nothing
+    go i (y:ys)
+        | x == y    = Just i
+        | otherwise = go (i + 1) ys
+
+
+applyAll :: [a -> a] -> a -> a
+applyAll fs x = foldl (\acc f -> f acc) x fs
+
+binarySearch :: Ord a => [a] -> a -> Maybe Int
+binarySearch xs target = go 0 (length xs - 1)
+  where
+    go low high
+      | low > high = Nothing
+      | otherwise  =
+          let mid = (low + high) `div` 2
+              midVal = xs !! mid
+          in case compare midVal target of
+               EQ -> Just mid
+               LT -> go (mid + 1) high
+               GT -> go low (mid - 1)
+
+quickSort :: Ord a => [a] -> [a]
+quickSort [] = []
+quickSort (x:xs) =
+    let smallerSorted = quickSort [a | a <- xs, a <= x]
+        biggerSorted  = quickSort [a | a <- xs, a > x]
+    in smallerSorted ++ [x] ++ biggerSorted
+
+
+type Peg = String
+type Move = (Peg, Peg)
+
+hanoi :: Int -> Peg -> Peg -> Peg -> [Move]
+hanoi 0 _ _ _ = []  
+hanoi n from to aux =
+    hanoi (n-1) from aux to ++     
+    [(from, to)] ++                  
+    hanoi (n-1) aux to from
+
+
+main :: IO ()
+main = do
+    print (safeHead([] :: [Int]))
+    print (safeDiv 10 2)
+    let double = mkMultiplier 2
+    print (double 5)
+    print (applyTwice (+1) 3)  
+    print (applyTwice (*2) 4)  
+    print (myMap (*2) [1,2,3])  
+    print (myMap show [1,2,3])  
+    print (myFilter even [1..10])
+    print (myFilter (>3) [1,2,3,4,5])
+    print (avg [1,2,3,4])
+    print (processList [2,4,6,8,12,45])    
+    print (findIndex 3 [1,2,3,4])
+    print(applyAll [(*2), (+1), (^2)]3)
+    print (binarySearch [1,3,5,7,9] 5)
+    print (quickSort [3,1,4,1,5,9,2])
+    print (hanoi 2 "A" "C" "B")  
+    print (hanoi 3 "L" "R" "M")
+
+    
+    
+    
+    
+    
+    
+    
